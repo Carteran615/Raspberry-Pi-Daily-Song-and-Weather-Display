@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Song of the Day</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      color-scheme: dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: #f158b1;
+      background:
+        radial-gradient(circle at 15% 22%, #ffa3c2 0%, transparent 31%),
+        radial-gradient(circle at 86% 84%, #fefefe 0%, transparent 33%),
+        linear-gradient(128deg, #ffbdd3, #ffe0e9 55%, #fbf1f3);
+    }
+
+    .dashboard {
+      position: relative;
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      min-height: 100vh;
+      overflow: hidden;
+      padding: clamp(28px, 5vw, 80px);
+    }
+
+    .dashboard::before {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.16;
+      background-image:
+        linear-gradient(rgb(255 255 255 / 15%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 15%) 1px, transparent 1px);
+      background-size: 42px 42px;
+      content: "";
+      mask-image: linear-gradient(90deg, #000, transparent 65%);
+    }
+
+    .album-panel,
+    .content-panel {
+      position: relative;
+      z-index: 1;
+    }
+
+    .album-panel {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+    }
+
+    .disc-wrap {
+      position: relative;
+      width: min(29vw, 355px);
+      aspect-ratio: 1;
+    }
+
+    .disc-shadow {
+      position: absolute;
+      inset: 9% 6% 0 11%;
+      border-radius: 50%;
+      background: #000;
+      filter: blur(18px);
+      opacity: 0.68;
+      transform: translate(16px, 20px) scale(0.92);
+    }
+
+    .disc {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #a45749, #25396b);
+      box-shadow:
+        0 25px 65px rgb(0 0 0 / 60%),
+        inset 0 0 0 2px rgb(255 255 255 / 25%);
+      animation: spin 24s linear infinite;
+      will-change: transform;
+    }
+
+    #artwork {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .disc::before {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      pointer-events: none;
+      border-radius: 50%;
+      background:
+        repeating-radial-gradient(
+          circle at center,
+          transparent 0 6px,
+          rgb(255 255 255 / 8%) 7px 8px,
+          transparent 9px 12px
+        ),
+        linear-gradient(
+          135deg,
+          rgb(255 255 255 / 22%),
+          transparent 25% 72%,
+          rgb(255 255 255 / 13%)
+        );
+      content: "";
+      mix-blend-mode: screen;
+    }
+
+    .disc::after {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      left: 50%;
+      width: 13%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, #101722 0 23%, #eee3c9 25% 38%, #58667b 41% 49%, #161e2b 51% 100%);
+      box-shadow: 0 0 0 3px rgb(255 255 255 / 23%);
+      content: "";
+      transform: translate(-50%, -50%);
+    }
+
+    .content-panel {
+      display: grid;
+      align-content: space-between;
+      min-width: 0;
+      padding-left: clamp(22px, 3.2vw, 48px);
+    }
+
+    .song-section {
+      max-width: 710px;
+    }
+
+    .eyebrow,
+    .weather-source {
+      color: #353535;
+      font-size: clamp(10px, 1.1vw, 14px);
+      font-weight: 650;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 700px;
+      margin: 11px 0 5px;
+      font-size: clamp(34px, 4.4vw, 64px);
+      font-weight: 650;
+      letter-spacing: -0.065em;
+      line-height: 0.9;
+    }
+
+    .artist {
+      margin: 0;
+      color: #353535;
+      font-size: clamp(18px, 2vw, 28px);
+    }
+
+    .song-meta {
+      margin: 9px 0 0;
+      color: #737373;
+      font-size: clamp(12px, 1.2vw, 17px);
+    }
+
+    .oftheday-section {
+      max-width: 760px;
+      margin-top: 0px;
+      padding-top: clamp(16px, 1vw, 26px);
+      border-top: 1px solid rgb(218 232 255 / 24%);
+    }
+    .oftheday-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .weather-section {
+      max-width: 760px;
+      margin-top: 0px;
+      padding-top: clamp(16px, 1vw, 26px);
+      border-top: 1px solid rgba(0, 0, 0, 0.24);
+    }
+
+    .weather-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .weather-location {
+      margin-top: 5px;
+      color: #f158b1;
+      font-size: clamp(15px, 1.6vw, 22px);
+      font-weight: 650;
+    }
+
+    .weather-detail {
+      margin: 4px 0 0;
+      color: #4f4f4f;
+      font-size: clamp(10px, 1vw, 13px);
+    }
+
+    .weather-now {
+      color: #f158b1;
+      font-size: clamp(39px, 4.9vw, 68px);
+      font-weight: 650;
+      letter-spacing: -0.08em;
+      line-height: 0.8;
+      white-space: nowrap;
+    }
+
+    .hourly-forecast {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 20px;
+    }
+
+    .weather-period {
+      min-width: 0;
+      padding-left: 5px;
+      border-left: 1px solid rgb(218 232 255 / 13%);
+      text-align: center;
+    }
+
+    .weather-period:first-child { border-left: 0; }
+
+    .weather-time,
+    .weather-rain {
+      display: block;
+      color: #000000;
+      font-size: clamp(9px, 0.9vw, 12px);
+    }
+
+    .weather-icon {
+      display: block;
+      margin: 8px 0 5px;
+      color: #ffda6e;
+      font-size: clamp(20px, 2vw, 27px);
+      line-height: 1;
+    }
+
+    .weather-temp {
+      display: block;
+      color: #000000;
+      font-size: clamp(13px, 1.3vw, 18px);
+      font-weight: 650;
+    }
+
+    .weather-rain {
+      margin-top: 4px;
+      color: #353535;
+    }
+
+    .status {
+      min-height: 1.2em;
+      margin: 14px 0 0;
+      color: #000000;
+      font-size: clamp(11px, 1vw, 14px);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .disc { animation: none; }
+    }
+
+    @media (max-width: 700px) {
+      .dashboard {
+        display: block;
+        padding: 34px 28px;
+      }
+
+      .disc-wrap {
+        width: min(64vw, 300px);
+        margin: 0 auto 34px;
+      }
+
+      .content-panel {
+        padding-left: 0;
+        text-align: center;
+      }
+
+      .weather-section {
+        margin-top: 32px;
+      }
+
+      .weather-heading {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="dashboard">
+    <section class="album-panel" aria-label="Album artwork">
+      <div class="disc-wrap">
+        <div class="disc-shadow" aria-hidden="true"></div>
+        <div class="disc">
+          <img id="artwork" alt="Album artwork">
+        </div>
+      </div>
+    </section>
+
+    <section class="content-panel">
+      <section class="song-section" aria-label="Today's song">
+        <div class="eyebrow">Today's pick</div>
+        <h1 id="title">Loading...</h1>
+        <p class="artist" id="artist"></p>
+        <p class="song-meta" id="song-meta"></p>
+      </section>
+
+      <section class="weather-section" aria-label="Forecast from NWS:">
+        <div class="weather-heading">
+          <div>
+            <div class="weather-source">Forecast from NWS:</div>
+            <div class="weather-location" id="weather-location">Loading weather...</div>
+            <p class="weather-detail" id="weather-detail"></p>
+          </div>
+          <div class="weather-now" id="weather-now">--</div>
+        </div>
+        <div class="hourly-forecast" id="hourly-forecast"></div>
+        <p class="status" id="status" role="status"></p>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const anchor = Date.UTC(2026, 0, 1);
+
+    function hash(text) {
+      let value = 2166136261;
+      for (const character of text) {
+        value ^= character.charCodeAt(0);
+        value = Math.imul(value, 16777619);
+      }
+      return value >>> 0;
+    }
+
+    function seededShuffle(items, seedText) {
+      const result = [...items];
+      let seed = hash(seedText);
+
+      const random = () => {
+        seed += 0x6D2B79F5;
+        let value = seed;
+        value = Math.imul(value ^ (value >>> 15), value | 1);
+        value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+        return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+      };
+
+      for (let index = result.length - 1; index > 0; index--) {
+        const swapIndex = Math.floor(random() * (index + 1));
+        [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+      }
+
+      return result;
+    }
+
+    function localDateParts() {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(new Date());
+
+      return Object.fromEntries(
+        parts
+          .filter(part => part.type !== "literal")
+          .map(part => [part.type, part.value])
+      );
+    }
+
+    function formatDate() {
+      return new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric"
+      }).format(new Date());
+    }
+
+    function weatherIcon(summary) {
+      const text = (summary || "").toLowerCase();
+      if (text.includes("thunder")) return "thunderstorm";
+      if (text.includes("snow") || text.includes("sleet")) return "snow";
+      if (text.includes("rain") || text.includes("shower")) return "rain";
+      if (text.includes("fog") || text.includes("haze")) return "fog";
+      if (text.includes("partly") || text.includes("mostly sunny")) return "partly-cloudy";
+      if (text.includes("cloud") || text.includes("overcast")) return "cloudy";
+      if (text.includes("night") || text.includes("clear")) return "clear-night";
+      return "sunny";
+    }
+
+    function iconCharacter(icon) {
+      const icons = {
+        sunny: "☀",
+        "partly-cloudy": "⛅",
+        cloudy: "☁",
+        rain: "☔",
+        thunderstorm: "⛈",
+        snow: "❄",
+        fog: "≋",
+        "clear-night": "☾"
+      };
+      return icons[icon] || "☀";
+    }
+
+    function formatTime(value) {
+      return new Intl.DateTimeFormat("en-US", {
+        hour: "numeric"
+      }).format(new Date(value));
+    }
+
+    function formatUpdated(value) {
+      return new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "2-digit"
+      }).format(new Date(value));
+    }
+
+    async function loadSong() {
+      const tracks = await fetch("./songs.json", { cache: "no-store" })
+        .then(response => {
+          if (!response.ok) throw new Error("Could not load songs.json.");
+          return response.json();
+        });
+
+      if (!tracks.length) throw new Error("Your playlist is empty.");
+
+      const today = localDateParts();
+      const utcToday = Date.UTC(today.year, Number(today.month) - 1, today.day);
+      const dayNumber = Math.floor((utcToday - anchor) / 86400000);
+      const cycle = Math.floor(dayNumber / tracks.length);
+      const position = ((dayNumber % tracks.length) + tracks.length) % tracks.length;
+      const song = seededShuffle(tracks, `pi-picks-${cycle}`)[position];
+
+      document.querySelector("#title").textContent = song.title;
+      document.querySelector("#artist").textContent = song.artist;
+      document.querySelector("#song-meta").textContent = [song.album, song.year]
+        .filter(Boolean)
+        .join(", released in ");
+
+      const artwork = document.querySelector("#artwork");
+      artwork.src = song.artwork || "";
+      artwork.alt = song.album ? `${song.album} artwork` : "Album artwork";
+      artwork.onerror = () => artwork.removeAttribute("src");
+    }
+
+    ///*
+    async function loadWeather() {
+      const data = await fetch("./weather.json", { cache: "no-store" })
+        .then(response => {
+          if (!response.ok) throw new Error("weather.json is not available yet.");
+          return response.json();
+        });
+
+      const periods = data.periods || data.properties?.periods || [];
+      if (!periods.length) throw new Error("No hourly forecast is available.");
+
+      const current = data.current || periods[0];
+      const currentTemperature = current.temperature ?? periods[0].temperature;
+      const unit = current.temperatureUnit || periods[0].temperatureUnit || "F";
+      const summary = current.shortForecast || periods[0].shortForecast || "Forecast";
+      const updated = data.updated || data.properties?.updated || periods[0].startTime;
+
+      document.querySelector("#weather-location").textContent = data.location || "Current location";
+      document.querySelector("#weather-detail").textContent = `${summary} - Updated ${formatUpdated(updated)}`;
+      document.querySelector("#weather-now").textContent = `${Math.round(currentTemperature)}°`;
+
+      const forecast = document.querySelector("#hourly-forecast");
+      forecast.replaceChildren();
+
+      periods.slice(0, 7).forEach(period => {
+        const rainChance = period.precipitationProbability?.value ?? period.rainChance ?? 0;
+        const symbol = iconCharacter(weatherIcon(period.shortForecast));
+        const unitLabel = period.temperatureUnit || unit;
+        const item = document.createElement("article");
+        item.className = "weather-period";
+        item.innerHTML = `
+          <time class="weather-time">${formatTime(period.startTime)}</time>
+          <span class="weather-icon" aria-label="${period.shortForecast}">${symbol}</span>
+          <strong class="weather-temp">${Math.round(period.temperature)}°</strong>
+          <span class="weather-rain">${Math.round(rainChance)}%</span>
+        `;
+        item.querySelector(".weather-temp").setAttribute("aria-label", `${Math.round(period.temperature)} degrees ${unitLabel}`);
+        forecast.append(item);
+      });
+    }
+    //  */
+
+    /*
+    // Uses a youtube tutorial
+    async function loadWeather() {
+      // Target in N Colorado Springs
+      const url = 'https://api.weather.gov/points/38.97355428885113,-104.74660308061661';
+
+      try{
+        const gridFetch = await fetch(url);
+        const gridData = await gridFetch.json();
+        const forecastUrl = gridData.properties.forecastHourly;
+
+        const forecastHourly = await fetch(forecastUrl);
+        const forecastData = await forecastHourly.json();
+
+        // Return values, trying to match weather.json
+        
+      }catch(error){
+
+      }
+    }
+      */
+
+    async function start() {
+      const status = document.querySelector("#status");
+
+      try {
+        await loadSong();
+      } catch (error) {
+        document.querySelector("#title").textContent = "Song unavailable";
+        status.textContent = error.message;
+      }
+
+      try {
+        await loadWeather();
+      } catch (error) {
+        status.textContent = status.textContent || error.message;
+      }
+    }
+
+    start();
+    setInterval(() => loadWeather().catch(() => {}), 5 * 60 * 1000);
+
+    const nextMidnight = new Date();
+    nextMidnight.setHours(24, 0, 5, 0);
+    setTimeout(() => location.reload(), nextMidnight - new Date());
+  </script>
+</body>
+</html>
