@@ -1,6 +1,9 @@
 > [!CAUTION]
 > **This project is unfinished, progress is made whenever I find time to work on it**
 
+> [!CAUTION]
+> **The project files leave out the main HTML file to avoid doxxing my girlfriend's house for now**
+
 
 ## $${\color{pink}Background:}$$
 - This is made as a gift for my girlfriend, but I already told her about it so it's not a surprise
