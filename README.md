@@ -2,7 +2,7 @@
 > **This project is unfinished, progress is made whenever I find time to work on it**
 
 > [!CAUTION]
-> **The project files leave out the main HTML file to avoid doxxing my girlfriend's house for now**
+> **The project files leave out the main HTML and JS files to avoid doxxing my girlfriend's house for now**
 
 
 ## $${\color{pink}Background:}$$
