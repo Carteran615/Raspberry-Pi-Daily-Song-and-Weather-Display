@@ -1,8 +1,8 @@
 > [!CAUTION]
 > **This project is unfinished, progress is made whenever I find time to work on it**
 
-> [!CAUTION]
-> **The project files leave out the main HTML and JS files to avoid doxxing my girlfriend's house for now**
+> [!WARNING]
+> **The weather points to a specific location and is not correct**
 
 
 ## $${\color{pink}Background:}$$
@@ -45,6 +45,7 @@
 ## $${\color{pink}What's \space Not \space Done \space Yet:}$$
 - Making the Pi boot into the web view on startup
 - Weather forecast divisions
+- Weather forecast location and data
 - Song database
 - Hourly updates loop (probably)
 - The entire undecided section
