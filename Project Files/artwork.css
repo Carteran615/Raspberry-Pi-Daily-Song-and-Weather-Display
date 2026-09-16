@@ -1,0 +1,60 @@
+.disc {
+  width: min(42vw, 620px);
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #0b0b0d;
+  box-shadow: 0 28px 80px #0009;
+  animation: spin 24s linear infinite;
+  will-change: transform;
+}
+
+#artwork {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Faint concentric CD grooves */
+.disc::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    repeating-radial-gradient(
+      circle at center,
+      transparent 0 8px,
+      rgb(255 255 255 / 8%) 9px 10px,
+      transparent 11px 15px
+    ),
+    radial-gradient(circle, transparent 0 7%, rgb(0 0 0 / 22%) 8% 100%);
+}
+
+/* The transparent centre hole / reflective hub */
+.disc::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: 13%;
+  aspect-ratio: 1;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #10131b 0 28%, #dce4ef 30% 40%, #303846 43%);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 20%);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disc { animation: none; }
+}

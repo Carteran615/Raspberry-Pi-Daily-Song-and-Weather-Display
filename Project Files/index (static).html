@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Song of the Day</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #fff;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(circle at 20% 10%, #30486e, #10131b 62%);
+    }
+    main {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(260px, 42vw) 1fr;
+      align-items: center;
+      gap: clamp(32px, 6vw, 110px);
+      padding: clamp(32px, 7vw, 120px);
+    }
+    #artwork {
+      width: min(42vw, 620px);
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 22px;
+      box-shadow: 0 28px 80px #0009;
+      background: linear-gradient(145deg, #a45749, #25396b);
+    }
+    .eyebrow {
+      color: #a9c6ff;
+      font-size: clamp(14px, 1.4vw, 22px);
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 16px 0 8px;
+      font-size: clamp(38px, 5.7vw, 96px);
+      line-height: .97;
+      letter-spacing: -.055em;
+    }
+    .artist {
+      margin: 0;
+      font-size: clamp(24px, 2.8vw, 46px);
+      color: #d4d9e5;
+    }
+    .album {
+      margin-top: 22px;
+      color: #9ea7bb;
+      font-size: clamp(17px, 1.8vw, 29px);
+    }
+    .date {
+      margin-top: 52px;
+      color: #a9c6ff;
+      font-size: clamp(16px, 1.6vw, 25px);
+    }
+    #error { display: none; font-size: 24px; color: #ffb4ab; }
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; text-align: center; padding: 36px; }
+      #artwork { width: min(78vw, 440px); margin: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <!--<img id="artwork" alt="Album artwork">-->
+    <div class="disc" id="disc">
+        <img id="artwork" alt="Album artwork">
+    </div>
+    <section>
+      <div class="eyebrow">Today’s pick</div>
+      <h1 id="title">Loading…</h1>
+      <p class="artist" id="artist"></p>
+      <p class="album" id="album"></p>
+      <p class="date" id="date"></p>
+      <p id="error"></p>
+    </section>
+  </main>
+
+  <script>
+    const anchor = Date.UTC(2026, 0, 1);
+
+    function hash(text) {
+      let value = 2166136261;
+      for (const char of text) {
+        value ^= char.charCodeAt(0);
+        value = Math.imul(value, 16777619);
+      }
+      return value >>> 0;
+    }
+
+    function seededShuffle(items, seedText) {
+      const result = [...items];
+      let seed = hash(seedText);
+      const random = () => {
+        seed += 0x6D2B79F5;
+        let t = seed;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function localDateParts() {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        year: "numeric", month: "2-digit", day: "2-digit"
+      }).formatToParts(new Date());
+
+      return Object.fromEntries(
+        parts.filter(p => p.type !== "literal").map(p => [p.type, p.value])
+      );
+    }
+
+    async function load() {
+      try {
+        const tracks = await fetch("./data/songs.json", { cache: "no-store" })
+          .then(response => response.json());
+
+        if (!tracks.length) throw new Error("Your playlist is empty.");
+
+        const today = localDateParts();
+        const utcToday = Date.UTC(today.year, Number(today.month) - 1, today.day);
+        const dayNumber = Math.floor((utcToday - anchor) / 86400000);
+        const cycle = Math.floor(dayNumber / tracks.length);
+        const position = ((dayNumber % tracks.length) + tracks.length) % tracks.length;
+        const song = seededShuffle(tracks, `pi-picks-${cycle}`)[position];
+
+        document.querySelector("#title").textContent = song.title;
+        document.querySelector("#artist").textContent = song.artist;
+        document.querySelector("#album").textContent =
+          [song.album, song.year].filter(Boolean).join(" · ");
+        document.querySelector("#date").textContent =
+          new Intl.DateTimeFormat("en-US", {
+            weekday: "long", month: "long", day: "numeric", year: "numeric"
+          }).format(new Date());
+
+        const art = document.querySelector("#artwork");
+        art.src = song.artwork || "";
+        art.alt = song.album ? `${song.album} artwork` : "Album artwork";
+        art.onerror = () => art.removeAttribute("src");
+      } catch (error) {
+        document.querySelector("#error").style.display = "block";
+        document.querySelector("#error").textContent = error.message;
+      }
+    }
+
+    load();
+
+    // Reload shortly after the next midnight.
+    const nextMidnight = new Date();
+    nextMidnight.setHours(24, 0, 5, 0);
+    setTimeout(() => location.reload(), nextMidnight - new Date());
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "phoenix-lisztomania 1",
+    "title": "Lisztomania 1",
+    "artist": "Phoenix 1",
+    "album": "Wolfgang Amadeus Phoenix 1",
+    "year": 2009,
+    "artwork": "./nirvana.jpg",
+    "url": "https://music.apple.com/"
+  },
+  {
+    "id": "phoenix-lisztomania 2",
+    "title": "Lisztomania 2",
+    "artist": "Phoenix 2",
+    "album": "Wolfgang Amadeus Phoenix 2",
+    "year": 2009,
+    "artwork": "./nirvana.jpg",
+    "url": "https://music.apple.com/"
+  },
+  {
+    "id": "phoenix-lisztomania 3",
+    "title": "Lisztomania 3",
+    "artist": "Phoenix 3",
+    "album": "Wolfgang Amadeus Phoenix 3",
+    "year": 2009,
+    "artwork": "./nirvana.jpg",
+    "url": "https://music.apple.com/"
+  }
+]

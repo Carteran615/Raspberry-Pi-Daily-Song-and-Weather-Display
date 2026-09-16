@@ -1,0 +1,60 @@
+{
+  "location": "Current location",
+  "updated": "2026-08-05T15:05:00-06:00",
+  "current": {
+    "temperature": 72,
+    "temperatureUnit": "F",
+    "shortForecast": "Partly Cloudy"
+  },
+  "periods": [
+    {
+      "startTime": "2026-08-05T16:00:00-06:00",
+      "temperature": 72,
+      "temperatureUnit": "F",
+      "shortForecast": "Sunny",
+      "precipitationProbability": { "value": 0 }
+    },
+    {
+      "startTime": "2026-08-05T17:00:00-06:00",
+      "temperature": 70,
+      "temperatureUnit": "F",
+      "shortForecast": "Sunny",
+      "precipitationProbability": { "value": 0 }
+    },
+    {
+      "startTime": "2026-08-05T18:00:00-06:00",
+      "temperature": 67,
+      "temperatureUnit": "F",
+      "shortForecast": "Partly Cloudy",
+      "precipitationProbability": { "value": 4 }
+    },
+    {
+      "startTime": "2026-08-05T19:00:00-06:00",
+      "temperature": 63,
+      "temperatureUnit": "F",
+      "shortForecast": "Mostly Cloudy",
+      "precipitationProbability": { "value": 9 }
+    },
+    {
+      "startTime": "2026-08-05T20:00:00-06:00",
+      "temperature": 60,
+      "temperatureUnit": "F",
+      "shortForecast": "Mostly Clear",
+      "precipitationProbability": { "value": 6 }
+    },
+    {
+      "startTime": "2026-08-05T21:00:00-06:00",
+      "temperature": 58,
+      "temperatureUnit": "F",
+      "shortForecast": "Clear",
+      "precipitationProbability": { "value": 3 }
+    },
+    {
+      "startTime": "2026-08-05T22:00:00-06:00",
+      "temperature": 56,
+      "temperatureUnit": "F",
+      "shortForecast": "Clear",
+      "precipitationProbability": { "value": 2 }
+    }
+  ]
+}
